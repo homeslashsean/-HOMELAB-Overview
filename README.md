@@ -2,7 +2,7 @@
 
 A cybersecurity and IT administration homelab running on a repurposed office PC, started July 4, 2026. Built as a hands-on environment for practicing defensive security and sysadmin skills, and as a portfolio piece.
 
-Full write-up with reasoning, hardware specs, and environment details: [Homelab-Proxmox-and-Pi-hole-Environment-Documentation-July-8th.pdf](Homelab-Proxmox-and-Pi-hole-Environment-Documentation-July-8th.pdf)
+Full write-up with reasoning, hardware specs, and environment details: [Homelab Proxmox and Pi-hole Environment Documentation July 8th.pdf](Homelab%20Proxmox%20and%20Pi-hole%20Environment%20Documentation%20July%208th.pdf)
 
 ## Why this project exists
 
