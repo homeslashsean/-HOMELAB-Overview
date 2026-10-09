@@ -7,7 +7,7 @@ Original July 2026 write-up (Proxmox + Pi-hole snapshot): [Homelab Proxmox and P
 
 ## Projects
 
-| Project | What it does | Repo |
+| Project | What it does | Link |
 |---|---|---|
 | DNS privacy stack | Pi-hole ad/tracker filtering with Unbound recursive resolution and DNSSEC validation, no third-party resolver | [-HOMELAB-DNS-Privacy-Stack](https://github.com/homeslashsean/-HOMELAB-DNS-Privacy-Stack) |
 | Network segmentation | pfSense VM providing an isolated, filtered LAN segment behind the existing consumer router | [-HOMELAB-pfSense-Network-Segmentation](https://github.com/homeslashsean/-HOMELAB-pfSense-Network-Segmentation) |
@@ -22,19 +22,19 @@ TP-Link Archer -- 192.168.0.0/24 -- Wi-Fi, TVs, household devices
     |
 Proxmox host (onboard NIC -> vmbr0)
     |-- LXC 100: Pi-hole + Unbound (192.168.0.2)
-    |-- LXC: Tailscale subnet router (collaborator access)
-    |-- VM: pfSense
+    |-- LXC 101: Tailscale subnet router (collaborator access)
+    |-- VM 102: pfSense
           WAN (vtnet0) on vmbr0, DHCP lease from the Archer
           LAN (vtnet1) on vmbr1 -> USB RTL8153 -> unmanaged switch
                 |
           192.168.10.0/24 -- gaming PC (Raspberry Pi planned)
 ```
 
-The Archer keeps routing the rest of the household exactly as before. Only devices deliberately plugged into the switch sit behind pfSense, and their DNS is forwarded through pfSense to Pi-hole/Unbound.
+The Archer keeps routing the rest of the household exactly as before. Only devices deliberately plugged into the switch sit behind pfSense, and their DNS is forwarded through pfSense to Pi-hole/Unbound. The remaining guests (SpiderFoot, Metasploitable2, Flowsint) are started on demand and are not shown above.
 
 ## Why this project exists
 
-Built to have a real, hands-on environment for cybersecurity and IT administration practice, rather than just studying concepts in isolation. It's also a genuinely good vehicle for honing skills from University coursework and experimenting with areas I enjoy. Homelabbing/self-hosting is a fascinating idea to me, and most importantly, it's fun to do!
+Built to have a real, hands-on environment for cybersecurity and IT administration practice, rather than just studying concepts in isolation. It doubles as a portfolio piece since employers in defensive security and sysadmin roles care about seeing actual infrastructure work, not just certifications or coursework. It's also a genuinely good vehicle for honing skills from University coursework and experimenting with areas I enjoy.
 
 ## Why Proxmox
 
@@ -42,7 +42,7 @@ Chose Proxmox VE over alternatives like ESXi or running everything in Docker on 
 
 ## Why an old office PC instead of dedicated hardware
 
-The machine hosting all of this is a repurposed office PC rather than something bought specifically for homelabbing. This kept the cost of the project at basically zero, and forces real thinking about resource constraints, working with 16GB of RAM total rather than an unlimited compute budget. Deciding what runs full time versus on demand is its own kind of practical systems administration skill.
+The machine hosting all of this is a repurposed HP EliteDesk rather than something bought specifically for homelabbing. This kept the cost of the project at basically zero, and forces real thinking about resource constraints, working with 16GB of RAM total rather than an unlimited compute budget. Deciding what runs full time versus on demand is its own kind of practical systems administration skill.
 
 Total hardware cost: $0.
 
@@ -59,26 +59,29 @@ Sits next to my main desktop. Runs headless, no monitor, mouse, or keyboard plug
 | RAM | 15.54 GiB total |
 | Storage | 1TB external SSD |
 | Swap | 8.00 GiB |
-| Network | Onboard NIC (pfSense WAN side) + USB RTL8153 (pfSense LAN side) |
+| Network | Onboard NIC (pfSense WAN) + USB RTL8153 (pfSense LAN) |
 | Switch | TP-Link LS1005G 5-port unmanaged gigabit |
 | GPU | GTX 960, currently removed for power testing, reserved for planned Jellyfin passthrough |
 | Boot mode | EFI |
 | Hypervisor | Proxmox VE, pve-manager 9.2.2 |
 | Kernel | Linux 7.0.2-6-pve |
 
-Current load: [fill in from new screenshot: CPU %, RAM used of 15.54 GiB, disk %]. Future VMs like Wazuh will run on demand rather than powered on 24/7.
+Snapshot (October 2026, with only the pfSense VM running): 1% CPU across 4 cores, 24% RAM (3.67 GiB of 15.50 GiB), 2% of the 888 GiB storage pool. Heavier VMs like Wazuh will run on demand rather than powered on 24/7.
 
 ![Proxmox summary](screenshots/proxmox-summary.png)
 
 ## Environment overview
 
-Currently running:
+Guests defined on the host:
 
 - **LXC 100, pihole** (Debian 12): Pi-hole + Unbound, documented in [-HOMELAB-DNS-Privacy-Stack](https://github.com/homeslashsean/-HOMELAB-DNS-Privacy-Stack)
-- **LXC, Tailscale subnet router**: collaborator access, described below
-- **VM, pfSense** (2 vCPU, 2GB RAM, 16GB disk): documented in [-HOMELAB-pfSense-Network-Segmentation](https://github.com/homeslashsean/-HOMELAB-pfSense-Network-Segmentation)
+- **LXC 101, tailscale-router**: collaborator access, described below
+- **LXC 201, spiderfoot**: general OSINT tool, used for personal education
+- **VM 102, pfsense** (2 vCPU, 2GB RAM, 16GB disk): documented in [-HOMELAB-pfSense-Network-Segmentation](https://github.com/homeslashsean/-HOMELAB-pfSense-Network-Segmentation)
+- **VM 103, metasploitable2**: intentionally vulnerable practice target
+- **VM 104, flowsint**: untouched as of October 2026
 
-Everything uses a single storage pool on the 1TB external SSD for now. As more VMs get added, storage and RAM allocation need to be tracked more carefully since the 16GB ceiling is a real constraint.
+Guests are started on demand to stay within the 16GB RAM ceiling. Everything shares a single storage pool on the 1TB external SSD for now, so storage and RAM allocation need to be tracked as more guests get added.
 
 ![Container and VM list](screenshots/container-list.png)
 
@@ -90,7 +93,7 @@ The approach used is a Tailscale subnet router, deployed as a dedicated lightwei
 
 Rather than granting full LAN access, collaborator devices are tagged and restricted through Tailscale's access control policy to only the specific services they need, scoped by IP and port rather than by subnet. Everything else on the network remains unreachable to a tagged device, regardless of what the underlying subnet route technically covers, the ACL is the actual enforcement boundary, not the route itself.
 
-This is intentionally a temporary, software-level boundary. pfSense now exists, but it runs as an isolated segment rather than the household router, so the ACL is still the real boundary for collaborator access. Moving that boundary into network architecture (VLANs) depends on host hardening and on the pfSense segment growing or moving to dedicated hardware.
+This is intentionally a software-level boundary. pfSense now exists, but it runs as an isolated segment rather than the household router, so the ACL remains the real enforcement boundary for collaborator access. Moving that boundary into network architecture (VLANs) depends on host hardening and on the pfSense segment growing or moving to dedicated hardware.
 
 Proxmox-level permissions (scoped users, resource pools) are the next layer planned, so collaborator access to specific VMs/containers can be similarly restricted at the hypervisor level, not just the network level.
 
@@ -123,6 +126,6 @@ The package never reaches deep sleep states (PC6/PC7) in any configuration, whic
 
 ## Updates
 
-- **October 2026:** Power optimization baseline added ([PDF](Homelab-Power-Optimization-Oct-2026.pdf)). Overview rewritten to cover the pfSense segment and the Pi-hole/Unbound stack as separate project repos.
+- **October 2026:** Overview rewritten to cover the pfSense segment, the Pi-hole/Unbound stack, and the current guest list. Power optimization baseline added ([PDF](Homelab-Power-Optimization-Oct-2026.pdf)).
 - **August 2026:** pfSense deployed as an isolated LAN segment ([repo](https://github.com/homeslashsean/-HOMELAB-pfSense-Network-Segmentation)).
 - **July 2026:** Proxmox host, Pi-hole + Unbound, and Tailscale collaborator access.
