@@ -69,3 +69,8 @@ The host itself hasn't been hardened yet. This is next on the list, alongside se
 - Wazuh SIEM
 - Kali Linux VM
 - Jellyfin with GTX 960
+
+## Updates
+
+### Power optimization (October 2026)
+Idle power baseline for the Proxmox host, measured with turbostat and PowerTOP: GPU removed, pfSense VM on and off, and the package C-state findings. See [Power Optimization: Idle Draw Baseline](Homelab-Power-Optimization-Oct-2026.pdf).
