@@ -34,7 +34,7 @@ The Archer keeps routing the rest of the household exactly as before. Only devic
 
 ## Why this project exists
 
-Built to have a real, hands-on environment for cybersecurity and IT administration practice, rather than just studying concepts in isolation. It doubles as a portfolio piece since employers in defensive security and sysadmin roles care about seeing actual infrastructure work, not just certifications or coursework. It's also a genuinely good vehicle for honing skills from University coursework and experimenting with areas I enjoy.
+Built to have a real, hands-on environment for cybersecurity and IT administration practice, rather than just studying concepts in isolation. It's also a genuinely good vehicle for honing skills from University coursework and experimenting with areas I enjoy. Homelabbing/self-hosting is a fascinating idea to me, and most importantly, it's fun to do!
 
 ## Why Proxmox
 
