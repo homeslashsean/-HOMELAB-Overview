@@ -76,7 +76,6 @@ Guests defined on the host:
 
 - **LXC 100, pihole** (Debian 12): Pi-hole + Unbound, documented in [-HOMELAB-DNS-Privacy-Stack](https://github.com/homeslashsean/-HOMELAB-DNS-Privacy-Stack)
 - **LXC 101, tailscale-router**: collaborator access, described below
-- **LXC 201, spiderfoot**: general OSINT tool, used for personal education
 - **VM 102, pfsense** (2 vCPU, 2GB RAM, 16GB disk): documented in [-HOMELAB-pfSense-Network-Segmentation](https://github.com/homeslashsean/-HOMELAB-pfSense-Network-Segmentation)
 - **VM 103, metasploitable2**: intentionally vulnerable practice target
 - **VM 104, flowsint**: untouched as of October 2026
